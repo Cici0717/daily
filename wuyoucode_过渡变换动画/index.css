@@ -1,0 +1,86 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+.transition-box{
+    width: 100px;
+    height: 100px;
+    background-color: orange;
+    /* transition:width 1s, height 1s, background-color 1s; */
+    /* transition: width 2s, height 2s, background-color 2s; */
+    transition: all 1s ease-in-out;
+    position:absolute;
+    left:0;
+}
+.transition-box:hover{
+    /* width: 200px;
+    height: 200px; */
+    background-color: tomato;
+    left: 200px;
+    top:20px;
+}
+
+.container{
+    width:200px;
+    margin:0 auto;
+    transform-style: preserve-3d;
+    perspective: 500px;
+    position:relative;
+    transition: all 1s ease-in-out;
+}
+
+.container:hover{
+    transform: rotate3d(0,1,0,180deg)
+}
+
+.transform-box{
+    width: 300px;
+    height: 300px;
+    background-color: tomato;
+    transition: all 1s ease-in-out;
+    /* top:100px; */
+    /* left: 100px; */
+    position:absolute;    
+    /* /* left: 100px; */
+    /* transform-origin: right bottom; 旋转中心点,要在元素本身里面设置 */ 
+    animation: changecolor 2s infinite;
+}
+
+.transform-box:hover{
+    /* transform: translate(100px, 100px); */
+    /* transform: translateX(100px) translateY(200px); */
+    /* transform: rotate(30deg); */
+    /* transform: rotate(45deg) scale(1.5) translate(100px, 100px);  旋转、缩放、位移 */
+    /* transform: scale(.5,0.75); */
+    /* transform: skew(0, 20deg);  水平倾斜 */
+
+    /* transform:translate3d(100px, 100px, 200px) ; */
+    /* transform: rotate3d(1, 0, 0, 60deg); */
+}
+
+.test-box{
+    width:200px;
+    height: 200px;
+    background-color: yellowgreen;
+    position: absolute;
+    transform: translateZ(100px);
+}
+
+@keyframes changecolor{
+    0%{
+        background-color: red;
+    }
+    25%{
+        background-color: blue;
+    }
+    50%{
+        background-color: green;
+    }
+    75%{
+        background-color: yellow;
+    }
+    100%{
+        background-color: red;
+    }
+}

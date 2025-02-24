@@ -1,0 +1,40 @@
+.bili-nav{
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 24px ;
+}
+/* 左侧入口区 */
+.left-entry{
+    display: flex;
+}
+
+.left-entry .entry-title{
+    display: flex;
+    align-items: center;
+    height: 64px;
+    color: #fff;
+    margin-right: 15px;
+}
+
+.left-entry .entry-title svg{
+    margin-right: 6px;
+}
+
+
+/* nav 中间搜索区 */
+.center-search-container{
+    flex: 1;
+    height: 40px;
+    padding:0 48px 0 48px;
+    border-radius: 8px;
+    border:1px solid #e3e5e7;
+    background-color: #f1f2f3;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.center-search-container .nav-search-button{
+    position: absolute;
+}

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅行打卡地图</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/js/china.js"></script>
+    <style>
+        #map-container {
+            width: 100%;
+            height: 800px;
+            margin: 0 auto;
+        }
+        .title {
+            text-align: center;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">我的旅行打卡地图</div>
+    <div id="map-container"></div>
+    <script>
+        // 存储已打卡的省份
+        let checkedProvinces = new Set();
+        // 存储打卡顺序
+        let checkOrder = [];
+        
+        // 颜色数组
+        const colors = [
+            '#ff7f50', '#87cefa', '#da70d6', '#32cd32', '#6495ed',
+            '#ff69b4', '#ba55d3', '#cd5c5c', '#ffa500', '#40e0d0'
+        ];
+
+        // 初始化地图
+        const myChart = echarts.init(document.getElementById('map-container'));
+        
+        // 地图配置选项
+        const option = {
+            tooltip: {
+                trigger: 'item',
+                formatter: function(params) {
+                    return params.name;
+                }
+            },
+            geo: {  // 添加地理坐标系配置
+                map: 'china',
+                roam: true,
+                label: {
+                    show: true,
+                    textStyle: {
+                        color: '#333'
+                    }
+                },
+                itemStyle: {
+                    areaColor: '#e0e0e0',
+                    borderColor: '#000',
+                    borderWidth: 1
+                },
+                emphasis: {
+                    itemStyle: {
+                        areaColor: '#b8e7fd'
+                    }
+                }
+            },
+            series: [{
+                type: 'map',
+                geoIndex: 0,  // 关联到第一个geo配置
+                map: 'china',
+                roam: true,
+                label: {
+                    normal: {
+                        show: true,
+                        textStyle: {
+                            color: '#333'
+                        }
+                    }
+                },
+                itemStyle: {
+                    normal: {
+                        areaColor: '#e0e0e0',
+                        borderColor: '#000',
+                        borderWidth: 1
+                    },
+                    emphasis: {
+                        areaColor: '#b8e7fd'
+                    }
+                },
+                data: []
+            }]
+        };
+
+        // 渲染地图
+        myChart.setOption(option);
+
+        // 点击事件处理
+        myChart.on('click', function(params) {
+            const provinceName = params.name;
+            if (checkedProvinces.has(provinceName)) {
+                if (confirm(`是否取消${provinceName}的打卡？`)) {
+                    checkedProvinces.delete(provinceName);
+                    checkOrder = checkOrder.filter(item => item !== provinceName);
+                }
+            } else {
+                if (confirm(`是否在${provinceName}打卡？`)) {
+                    checkedProvinces.add(provinceName);
+                    checkOrder.push(provinceName);
+                }
+            }
+            updateMap();
+        });
+
+        // 更新地图显示
+        function updateMap() {
+            const data = [];
+            const lines = [];
+            
+            // 为所有省份设置初始状态
+            const geoCoord = getProvinceCoords(['北京'])[0];
+            Object.keys(geoCoord).forEach(province => {
+                const provinceData = {
+                    name: province,
+                    value: 0,
+                    itemStyle: {
+                        areaColor: '#e0e0e0' // 默认颜色
+                    }
+                };
+                // 如果是已打卡省份，设置特殊颜色
+                if (checkedProvinces.has(province)) {
+                    const index = checkOrder.indexOf(province);
+                    provinceData.itemStyle.areaColor = colors[index % colors.length];
+                    provinceData.value = 1;
+                }
+                data.push(provinceData);
+            });
+
+            // 只有当有多个打卡点时才添加路线
+            if (checkOrder.length > 1) {
+                // 添加路线
+                for (let i = 1; i < checkOrder.length; i++) {
+                    const coords = getProvinceCoords([checkOrder[i-1], checkOrder[i]]);
+                    if (coords.length === 2) {
+                        lines.push({
+                            coords: coords,
+                            lineStyle: {
+                                color: colors[(i-1) % colors.length],
+                                width: 2,
+                                curveness: 0.3
+                            }
+                        });
+                    }
+                }
+            }
+
+            // 更新地图配置
+            option.series = [{
+                type: 'map',
+                map: 'china',
+                roam: true,
+                label: {
+                    normal: {
+                        show: true,
+                        textStyle: {
+                            color: '#333'
+                        }
+                    }
+                },
+                itemStyle: {
+                    normal: {
+                        borderColor: '#000',
+                        borderWidth: 1
+                    },
+                    emphasis: {
+                        areaColor: '#b8e7fd'
+                    }
+                },
+                data: data
+            }];
+
+            // 只在有路线时添加路线图层
+            if (lines.length > 0) {
+                option.series.push({
+                    type: 'lines',
+                    coordinateSystem: 'geo',
+                    zlevel: 2,
+                    effect: {
+                        show: true,
+                        period: 6,
+                        trailLength: 0.7,
+                        color: '#fff',
+                        symbolSize: 3
+                    },
+                    lineStyle: {
+                        normal: {
+                            width: 2,
+                            opacity: 0.6,
+                            curveness: 0.3
+                        }
+                    },
+                    data: lines
+                });
+            }
+
+            myChart.setOption(option, true);
+        }
+
+        // 获取省份坐标
+        function getProvinceCoords(provinces) {
+            const coords = [];
+            const geoCoord = {
+                '北京':[116.46,39.92], '天津':[117.2,39.13], '河北':[114.48,38.03],
+                '山西':[112.53,37.87], '内蒙古':[111.65,40.82], '辽宁':[123.38,41.8],
+                '吉林':[125.35,43.88], '黑龙江':[126.63,45.75], '上海':[121.48,31.22],
+                '江苏':[118.78,32.04], '浙江':[120.19,30.26], '安徽':[117.27,31.86],
+                '福建':[119.3,26.08], '江西':[115.89,28.68], '山东':[117,36.65],
+                '河南':[113.65,34.76], '湖北':[114.31,30.52], '湖南':[113,28.21],
+                '广东':[113.23,23.16], '广西':[108.33,22.84], '海南':[110.35,20.02],
+                '重庆':[106.54,29.59], '四川':[104.06,30.67], '贵州':[106.71,26.57],
+                '云南':[102.73,25.04], '西藏':[91.11,29.97], '陕西':[108.95,34.27],
+                '甘肃':[103.73,36.03], '青海':[101.74,36.56], '宁夏':[106.27,38.47],
+                '新疆':[87.68,43.77], '台湾':[121.30,25.03], '香港':[114.17,22.28],
+                '澳门':[113.54,22.19]
+            };
+
+            provinces.forEach(province => {
+                if (geoCoord[province]) {
+                    coords.push(geoCoord[province]);
+                }
+            });
+
+            return coords;
+        }
+    </script>
+</body>
+</html>

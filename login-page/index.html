@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欢迎登录</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="landing-section">
+            <h1>欢迎回来</h1>
+            <p>探索更多精彩内容</p>
+            <div class="illustration"></div>
+        </div>
+        
+        <div class="login-section">
+            <div class="login-container">
+                <h2>账号登录</h2>
+                <form id="loginForm">
+                    <div class="input-group">
+                        <input type="email" id="email" required>
+                        <label for="email">电子邮箱</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="password" required>
+                        <label for="password">密码</label>
+                    </div>
+                    <div class="remember-forgot">
+                        <label>
+                            <input type="checkbox"> 记住我
+                        </label>
+                        <a href="#">忘记密码？</a>
+                    </div>
+                    <button type="submit">登录</button>
+                    <p class="register-link">还没有账号？<a href="#">立即注册</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
